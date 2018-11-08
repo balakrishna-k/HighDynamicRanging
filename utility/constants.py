@@ -14,5 +14,5 @@ TEST_READ_PATH = 'images/test'
 
 # ----------------------------------------------
 # IMAGE DISPLAY TIME CONSTANTS
-IMAGE_DISPLAY_TIME  = 1000
+IMAGE_DISPLAY_TIME = 1000
 WAIT_FOR_KEY_PRESS = 0

@@ -1,7 +1,8 @@
 import cv2 as cv
 import numpy as np
-from utility import constants as ct
 import os
+
+from utility import constants as ct
 
 
 def read(path, callback=None):
@@ -35,6 +36,7 @@ def load_images_from_folder(folder_path, callback=None):
         if img is not None:
             if callback is not None:
                 img = callback(img)
+                print(np.amax(img[0]), np.amax(img[1]), np.amax(img[2]))
             images.append(img)
     return images
 
@@ -65,7 +67,7 @@ def get_center_region(img, window_size=100):
 
 
 def get_average_brightness_of_channel(channel):
-    average_brightness = (np.sum(channel)) / channel.size
+    average_brightness = np.sum(channel) / channel.size
     return average_brightness
 
 
@@ -79,7 +81,7 @@ def get_average_brightness(image):
     return [blue_brightness, green_brightness, red_brightness]
 
 
-def get_average_brightness_of_images(images):
+def get_average_brightness_of_images(images, callback=None):
     # Returns an array containing channel wise brightness of all the images
     matrix = [-1, -1, -1]
 
@@ -92,6 +94,13 @@ def get_average_brightness_of_images(images):
     green_array = matrix[:, 1].reshape(matrix.shape[0], 1)
     red_array = matrix[:, 2].reshape(matrix.shape[0], 1)
 
+    if callback is not None:
+        blue_array = callback(blue_array)
+        green_array = callback(green_array)
+        red_array = callback(red_array)
+
     return [blue_array, green_array, red_array]
 
 
+def histogram():
+    return

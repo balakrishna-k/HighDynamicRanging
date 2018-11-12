@@ -1,4 +1,13 @@
 # -----------------------------------------------
+# CHANNEL CONSTANTS
+CHANNEL = {0: "Blue", 1: "Green", 2: "Red"}
+CHANNEL_COLOUR = {0: 'b', 1: 'g', 2: 'r'}
+
+# -----------------------------------------------
+# GAMMA CORRECTION PARAMETERS
+EXPOSURE_TIMES = [1 / 350, 1 / 250, 1 / 180, 1 / 125, 1 / 90, 1 / 60, 1 / 45, 1 / 30]
+
+# -----------------------------------------------
 # IMAGE PATHS
 GAMMA_WRITE_PATH = 'images/gamma/out'
 GAMMA_READ_PATH = 'images/gamma'

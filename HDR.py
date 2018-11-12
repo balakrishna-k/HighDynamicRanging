@@ -1,24 +1,14 @@
-from matplotlib import pylab as plb
-
-from hdr import compositions as cp
-from hdr import exposure as xp
 from hdr import gamma as gc
 
+from utility import constants as ct
+from utility import imageutil as im
 
-times = [1, 1.38, 2, 2.78, 4.17, 5.56, 17.86, 25.00, 62.5]
+exposure_times = ct.EXPOSURE_TIMES
 
-red_fit, blue_fit, green_fit, brightness = gc.learn_gamma_correction_parameters(times)
+new_gamma_brightness, gamma_brightness, g, fits = gc.invert_gamma_correction(display=True)
 
-gc.plot_brightness_fit(brightness[2], times, green_fit)
+print(g)
 
-plb.plot(brightness[0])
-plb.ylabel('Blue Channel Brightness')
-plb.show()
+new_test_brightness = gc.compute_real_brightness_of_image(gamma_brightness, g)
 
-plb.plot(brightness[1])
-plb.ylabel('Green Channel Brightness')
-plb.show()
-
-plb.plot(brightness[2])
-plb.ylabel('Red Channel Brightness')
-plb.show()
+images = im.load_images_from_folder(ct.GAMMA_READ_PATH)

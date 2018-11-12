@@ -101,3 +101,6 @@ def get_average_brightness_of_images(images, callback=None):
 
     return [blue_array, green_array, red_array]
 
+
+def histogram():
+    return

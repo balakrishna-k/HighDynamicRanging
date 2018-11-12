@@ -1,3 +1,5 @@
+CHANNEL = {0: "Blue", 1: "Green", 2: "Red"}
+
 # -----------------------------------------------
 # IMAGE PATHS
 GAMMA_WRITE_PATH = 'images/gamma/out'

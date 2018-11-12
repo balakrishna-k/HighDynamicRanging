@@ -7,6 +7,44 @@ from utility import constants as ct
 from utility import util as ut
 
 
+def invert_gamma_correction(exp_times, read_path=None, g=None, fits=None, callback=None, display=False):
+    # If g parameters have not yet been learned, the function learns them using images in the gamma folder.
+    # Optional callback function that is applied to an image while being loaded.
+    # callback operational only when g parameters have already been learned
+    # If display is set to true, then popups of the plots are shown and written to the gamma output folder
+
+    # Returns corrected brightness, original brightness, g parameters, polynomial fits
+
+    exp_times = np.log(exp_times)
+    if g is None:
+        g_b, g_g, g_r, fits, orig_brightness = learn_gamma_correction_parameters(exp_times)
+        g = [g_b, g_g, g_r]
+
+    else:
+        if read_path is None:
+            raise RuntimeError("Must specify path to load images")
+        images = im.load_images_from_folder(read_path, callback)
+        # We consider the log of the orig_brightness, so we pass the np.log to the function
+        orig_brightness = im.get_average_brightness_of_images(images, np.log)
+
+    # Reversing log that was applied
+    orig_brightness = np.exp(orig_brightness)
+
+    # Inverting the gamma correction
+    blue_corrected = np.power(orig_brightness[0], g[0])
+    green_corrected = np.power(orig_brightness[1], g[1])
+    red_corrected = np.power(orig_brightness[2], g[2])
+
+    new_brightness = [blue_corrected, green_corrected, red_corrected]
+
+    if display is True:
+        plot_brightness_of_channels(1, "ChannelBrightness.png", exp_times, np.log(orig_brightness), np.exp)
+        plot_brightness_fit(2, "LinearRegression.png", exp_times, np.log(orig_brightness), fits)
+        plot_brightness_of_channels(3, "CorrectedBrightness.png", np.exp(exp_times), new_brightness)
+
+    return new_brightness, orig_brightness, g, fits
+
+
 def learn_gamma_correction_parameters(exp_times):
     # Learns the gamma correction applied by the camera.
     # Reads images from the gamma correction images directory
@@ -42,14 +80,9 @@ def __curve_fit(X, Y):
     return fit
 
 
-def invert_gamma_correction(g_b, g_g, g_r):
-    brightness = 0
-    return brightness
-
-
 def plot_brightness_of_channels(figure_number, file_name, X, Y, callback=None):
     plb.figure(figure_number)
-
+    # plb.tight_layout()
     for i in range(0, 3):
         channel = Y[i]
         if callback is not None:
@@ -58,33 +91,25 @@ def plot_brightness_of_channels(figure_number, file_name, X, Y, callback=None):
         plb.subplot(int("31" + str(i + 1)))
         plb.plot(X, channel)
         plb.ylabel(ct.CHANNEL[i] + ' Channel \n Brightness')
-        plb.xlabel('Exposure Time - log(T)')
-
+        plb.xlabel('Exposure Time - T')
+    plb.tight_layout()
     plb.savefig(ct.GAMMA_WRITE_PATH + "/" + file_name)
     plb.show()
 
 
-def plot_brightness_fit(figure_number, X, Y, fits):
+def plot_brightness_fit(figure_number, file_name, X, Y, fits):
     plb.figure(figure_number)
 
     for i in range(0, 3):
         channel_brightness = Y[i]
         fit = fits[i]
-        plb.subplot(int("31" + str(i+1)))
+        plb.subplot(int("31" + str(i + 1)))
         plb.plot(X, channel_brightness, 'o', color='k')
         plb.plot(X, fit(X), color='r')
         plb.xlabel('Exposure Time - log(T)')
 
         plb.ylabel(ct.CHANNEL[i] + ' Channel \n Brightness $\mathrm{(B^{g})}$')
 
-    plb.savefig(ct.GAMMA_WRITE_PATH + "/LinearRegression.png")
+    plb.tight_layout()
+    plb.savefig(ct.GAMMA_WRITE_PATH + "/" + file_name)
     plb.show()
-
-
-def plot_channel_brightness_fit(X, Y, fit):
-    plb.plot(X, Y, 'o', color='k')
-    plb.plot(X, fit(X), color='r')
-    plb.xlabel('Exposure Time')
-    plb.ylabel('Brightness $\mathrm{(B^{g})}$')
-    plb.show()
-

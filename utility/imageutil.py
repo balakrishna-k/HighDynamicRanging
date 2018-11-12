@@ -36,7 +36,7 @@ def load_images_from_folder(folder_path, callback=None):
         if img is not None:
             if callback is not None:
                 img = callback(img)
-                # display("test", img)
+                print(np.amax(img[0]), np.amax(img[1]), np.amax(img[2]))
             images.append(img)
     return images
 

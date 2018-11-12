@@ -19,7 +19,7 @@ def compute_real_brightness_of_image(orig_brightness, g):
     return new_brightness
 
 
-def invert_gamma_correction(exp_times, display=False):
+def invert_gamma_correction(exp_times=ct.EXPOSURE_TIMES, display=False):
     # If display is set to true, then popups of the plots are shown and written to the gamma output folder
 
     # Returns corrected brightness, original brightness, g parameters, polynomial fits
@@ -34,9 +34,12 @@ def invert_gamma_correction(exp_times, display=False):
     new_brightness = compute_real_brightness_of_image(orig_brightness, g)
 
     if display is True:
-        plot_brightness_of_channels(1, "ChannelBrightness.png", np.exp(exp_times), orig_brightness)
-        plot_linear_fit(2, "LinearRegression.png", exp_times, np.log(orig_brightness), fits)
-        plot_brightness_of_channels(3, "CorrectedBrightness.png", np.exp(exp_times), new_brightness)
+        plot_brightness_of_channels(1, "ChannelBrightness.png", "Channel Brightness v/s Exposure Time",
+                                    np.exp(exp_times), orig_brightness)
+        plot_linear_fit(2, "LinearRegression.png", "Linear Fit",
+                        exp_times, np.log(orig_brightness), fits)
+        plot_brightness_of_channels(3, "CorrectedBrightness.png", "Real Channel Brightness v/s Exposure Time",
+                                    np.exp(exp_times), new_brightness)
 
     return new_brightness, orig_brightness, g, fits
 
@@ -76,24 +79,26 @@ def __curve_fit(X, Y):
     return fit
 
 
-def plot_brightness_of_channels(figure_number, file_name, X, Y, callback=None):
+def plot_brightness_of_channels(figure_number, file_name, title, X, Y, callback=None):
     plb.figure(figure_number)
-    # plb.tight_layout()
     for i in range(0, 3):
         channel = Y[i]
         if callback is not None:
             channel = callback(Y[i])
             X = callback(X)
         plb.subplot(int("31" + str(i + 1)))
-        plb.plot(X, channel)
+        plb.plot(X, channel, color=ct.CHANNEL_COLOUR[i])
         plb.ylabel(ct.CHANNEL[i] + ' Channel \n Brightness')
         plb.xlabel('Exposure Time - T')
+
     plb.tight_layout()
+    plb.suptitle(title)
+    plb.subplots_adjust(top=0.93)
     plb.savefig(ct.GAMMA_WRITE_PATH + "/" + file_name)
     plb.show()
 
 
-def plot_linear_fit(figure_number, file_name, X, Y, fits):
+def plot_linear_fit(figure_number, file_name, title, X, Y, fits):
     plb.figure(figure_number)
 
     for i in range(0, 3):
@@ -101,11 +106,13 @@ def plot_linear_fit(figure_number, file_name, X, Y, fits):
         fit = fits[i]
         plb.subplot(int("31" + str(i + 1)))
         plb.plot(X, channel_brightness, 'o', color='k')
-        plb.plot(X, fit(X), color='r')
+        plb.plot(X, fit(X), color=ct.CHANNEL_COLOUR[i])
         plb.xlabel('Exposure Time - log(T)')
 
         plb.ylabel(ct.CHANNEL[i] + ' Channel \n Brightness $\mathrm{(B^{g})}$')
 
+    plb.suptitle(title)
     plb.tight_layout()
+    plb.subplots_adjust(top=0.93)
     plb.savefig(ct.GAMMA_WRITE_PATH + "/" + file_name)
     plb.show()

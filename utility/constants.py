@@ -39,4 +39,4 @@ BIGGER_SIZE = 12
 
 # ----------------------------------------------
 # HISTOGRAM CONSTANTS
-BIN_COUNT = 25
+BIN_COUNT = 255

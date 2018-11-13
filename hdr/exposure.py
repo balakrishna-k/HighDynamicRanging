@@ -17,9 +17,9 @@ plt.rc('figure', titlesize=ct.BIGGER_SIZE)  # fontsize of the figure title
 
 def generate_hdr_stack_histogram(file_name, gamma_params, display=ct.DONT_DISPLAY_PLOT):
     # Loads the three images from the exposure folder and generates the plots
-    image1 = im.read(ct.GAMMA_READ_PATH + "/DSC_0015.JPG")
-    image2 = im.read(ct.GAMMA_READ_PATH + "/DSC_0017.JPG")
-    image3 = im.read(ct.GAMMA_READ_PATH + "/DSC_0019.JPG")
+    image1 = im.read(ct.EXPOSURE_READ_PATH + "/Correctly_Exposed.JPG")
+    image2 = im.read(ct.EXPOSURE_READ_PATH + "/Partly_Saturated.JPG")
+    image3 = im.read(ct.EXPOSURE_READ_PATH + "/Really_Saturated.JPG")
 
     images = [image1, image2, image3]
 

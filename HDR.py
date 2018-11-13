@@ -1,14 +1,17 @@
 from hdr import gamma as gc
+from hdr import exposure as xp
+from hdr import composition as cp
 
 from utility import constants as ct
-from utility import imageutil as im
 
-exposure_times = ct.EXPOSURE_TIMES
+DISPLAY = ct.DISPLAY_PLOT
 
-new_gamma_brightness, gamma_brightness, g, fits = gc.invert_gamma_correction(display=True)
+g = gc.learn_gamma_parameters_and_plot(display=DISPLAY)
 
 print(g)
 
-new_test_brightness = gc.compute_real_brightness_of_image(gamma_brightness, g)
+images = xp.generate_hdr_stack_histogram(file_name="Histograms.png", gamma_params=g, display=DISPLAY)
 
-images = im.load_images_from_folder(ct.GAMMA_READ_PATH)
+cp.algo1(g, images[0], images[1], 1, images[2], 2)
+
+

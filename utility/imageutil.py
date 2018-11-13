@@ -36,7 +36,6 @@ def load_images_from_folder(folder_path, callback=None):
         if img is not None:
             if callback is not None:
                 img = callback(img)
-                print(np.amax(img[0]), np.amax(img[1]), np.amax(img[2]))
             images.append(img)
     return images
 
@@ -102,5 +101,6 @@ def get_average_brightness_of_images(images, callback=None):
     return [blue_array, green_array, red_array]
 
 
-def histogram():
-    return
+def histogram(image, channel, g, bin_count=ct.BIN_COUNT):
+    end = np.power(256, g[channel])
+    return cv.calcHist([image], [channel], None, [bin_count], [0, end])

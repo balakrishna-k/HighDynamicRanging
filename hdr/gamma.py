@@ -1,50 +1,68 @@
 import numpy as np
 
-from matplotlib import pylab as plb
+from matplotlib import pyplot as plb
 
 from utility import imageutil as im
 from utility import constants as ct
 from utility import util as ut
 
 
-def compute_real_brightness_of_image(orig_brightness, g):
-    # Given parameter g, simply inverts gamma correction and returns new brightness
+def invert_gamma_of_image(image, gamma_params, callback=None):
+    # requires parameter g, simply inverts gamma correction and returns new float64 image
+    # Optional callback whose Intended use is to help in conversion from float64 to other formats (like float32) ONLY
 
-    blue_corrected = np.power(orig_brightness[0], g[0])
-    green_corrected = np.power(orig_brightness[1], g[1])
-    red_corrected = np.power(orig_brightness[2], g[2])
+    if gamma_params is None:
+        raise RuntimeError("You must pass in a list of gamma parameters as [g_b, g_g, g_r]")
+    channels = im.split_channels(image)
+    corrected_channels = [np.power(channels[0], gamma_params[0]),
+                          np.power(channels[1], gamma_params[1]),
+                          np.power(channels[2], gamma_params[2])]
+    new_image = im.combine_channels(corrected_channels)
 
-    new_brightness = [blue_corrected, green_corrected, red_corrected]
+    if callback is not None:
+        new_image = callback(new_image)
 
-    return new_brightness
+    return new_image
 
 
-def invert_gamma_correction(exp_times=ct.EXPOSURE_TIMES, display=False):
+def learn_gamma_parameters_and_plot(exp_times=ct.GAMMA_EXPOSURE_TIMES, display=ct.DONT_DISPLAY_PLOT):
     # If display is set to true, then popups of the plots are shown and written to the gamma output folder
 
-    # Returns corrected brightness, original brightness, g parameters, polynomial fits
+    # Returns g parameters
 
     exp_times = np.log(exp_times)
 
-    g_b, g_g, g_r, fits, orig_brightness = learn_gamma_correction_parameters(exp_times)
+    g_b, g_g, g_r, fits, orig_brightness, images = __learn_gamma_correction_parameters__(exp_times)
     g = [g_b, g_g, g_r]
 
     # Reversing log that was applied
     orig_brightness = np.exp(orig_brightness)
-    new_brightness = compute_real_brightness_of_image(orig_brightness, g)
+    corrected_images = []
+    for image in images:
+        channels = im.split_channels(image)
+        corrected_channels = [np.power(channels[0], g_b), np.power(channels[1], g_g), np.power(channels[2], g_r)]
+        corrected_images.append(im.combine_channels(corrected_channels))
 
-    if display is True:
-        plot_brightness_of_channels(1, "ChannelBrightness.png", "Channel Brightness v/s Exposure Time",
-                                    np.exp(exp_times), orig_brightness)
-        plot_linear_fit(2, "LinearRegression.png", "Linear Fit",
-                        exp_times, np.log(orig_brightness), fits)
-        plot_brightness_of_channels(3, "CorrectedBrightness.png", "Real Channel Brightness v/s Exposure Time",
-                                    np.exp(exp_times), new_brightness)
+    [b_brightness, g_brightness, r_brightness] = im.get_average_brightness_of_images(corrected_images)
+    b_brightness = ut.sort_and_reshape_to_1D(b_brightness)
+    g_brightness = ut.sort_and_reshape_to_1D(g_brightness)
+    r_brightness = ut.sort_and_reshape_to_1D(r_brightness)
 
-    return new_brightness, orig_brightness, g, fits
+    new_brightness = [b_brightness, g_brightness, r_brightness]
+
+    # new_brightness = compute_real_brightness_of_image(orig_brightness, g)
+
+    __plot_brightness_of_channels__(1, "ChannelBrightness.png", "Channel Brightness v/s Exposure Time",
+                                    np.exp(exp_times), orig_brightness, display=display)
+    __plot_linear_fit__(2, "LinearRegression.png", "Linear Fit",
+                        exp_times, np.log(orig_brightness), fits, display=display)
+    __plot_brightness_of_channels__(3, "CorrectedBrightness.png", "Real Channel Brightness v/s Exposure Time",
+                                    np.exp(exp_times), new_brightness, display=display)
+
+    return g
 
 
-def learn_gamma_correction_parameters(exp_times):
+def __learn_gamma_correction_parameters__(exp_times):
     # Learns the gamma correction applied by the camera.
     # Reads images from the gamma correction images directory
 
@@ -56,9 +74,9 @@ def learn_gamma_correction_parameters(exp_times):
     g_brightness = ut.sort_and_reshape_to_1D(g_brightness)
     r_brightness = ut.sort_and_reshape_to_1D(r_brightness)
 
-    b_fit = __curve_fit(exp_times, b_brightness)
-    g_fit = __curve_fit(exp_times, g_brightness)
-    r_fit = __curve_fit(exp_times, r_brightness)
+    b_fit = __curve_fit__(exp_times, b_brightness)
+    g_fit = __curve_fit__(exp_times, g_brightness)
+    r_fit = __curve_fit__(exp_times, r_brightness)
 
     c_b, m_b = b_fit
     c_g, m_g = g_fit
@@ -68,10 +86,10 @@ def learn_gamma_correction_parameters(exp_times):
     g_g = 1 / m_g
     g_r = 1 / m_r
 
-    return g_b, g_g, g_r, [b_fit, g_fit, r_fit], [b_brightness, g_brightness, r_brightness]
+    return g_b, g_g, g_r, [b_fit, g_fit, r_fit], [b_brightness, g_brightness, r_brightness], images
 
 
-def __curve_fit(X, Y):
+def __curve_fit__(X, Y):
     poly = np.polynomial.Polynomial
     c_min, c_max = min(Y), max(Y)
     fit = poly.fit(X, Y, 1, full=False, window=(c_min, c_max), domain=(c_min, c_max))
@@ -79,7 +97,7 @@ def __curve_fit(X, Y):
     return fit
 
 
-def plot_brightness_of_channels(figure_number, file_name, title, X, Y, callback=None):
+def __plot_brightness_of_channels__(figure_number, file_name, title, X, Y, callback=None, display=ct.DONT_DISPLAY_PLOT):
     plb.figure(figure_number)
     for i in range(0, 3):
         channel = Y[i]
@@ -95,10 +113,12 @@ def plot_brightness_of_channels(figure_number, file_name, title, X, Y, callback=
     plb.suptitle(title)
     plb.subplots_adjust(top=0.93)
     plb.savefig(ct.GAMMA_WRITE_PATH + "/" + file_name)
-    plb.show()
+
+    if display is True:
+        plb.show()
 
 
-def plot_linear_fit(figure_number, file_name, title, X, Y, fits):
+def __plot_linear_fit__(figure_number, file_name, title, X, Y, fits, display=ct.DONT_DISPLAY_PLOT):
     plb.figure(figure_number)
 
     for i in range(0, 3):
@@ -115,4 +135,6 @@ def plot_linear_fit(figure_number, file_name, title, X, Y, fits):
     plb.tight_layout()
     plb.subplots_adjust(top=0.93)
     plb.savefig(ct.GAMMA_WRITE_PATH + "/" + file_name)
-    plb.show()
+
+    if display is True:
+        plb.show()

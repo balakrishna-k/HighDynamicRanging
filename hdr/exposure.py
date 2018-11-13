@@ -1,4 +1,7 @@
+import numpy as np
 from matplotlib import pyplot as plt
+
+from hdr import gamma as gc
 
 from utility import imageutil as im
 from utility import constants as ct
@@ -12,7 +15,7 @@ plt.rc('legend', fontsize=ct.SMALL_SIZE)    # legend fontsize
 plt.rc('figure', titlesize=ct.BIGGER_SIZE)  # fontsize of the figure title
 
 
-def generate_hdr_stack_histogram(file_name, g, display=ct.DONT_DISPLAY_PLOT):
+def generate_hdr_stack_histogram(file_name, gamma_params, display=ct.DONT_DISPLAY_PLOT):
     # Loads the three images from the exposure folder and generates the plots
     image1 = im.read(ct.GAMMA_READ_PATH + "/DSC_0015.JPG")
     image2 = im.read(ct.GAMMA_READ_PATH + "/DSC_0017.JPG")
@@ -20,39 +23,22 @@ def generate_hdr_stack_histogram(file_name, g, display=ct.DONT_DISPLAY_PLOT):
 
     images = [image1, image2, image3]
 
-    generate_histogram(file_name, images, g, display)
+    __generate_histogram__(file_name, images, gamma_params, display)
 
 
-def generate_histogram(file_name, images, g, display=ct.DONT_DISPLAY_PLOT):
+def __generate_histogram__(file_name, images, gamma_params, display=ct.DONT_DISPLAY_PLOT):
     graph_num = 0
     for i, image in enumerate(images):
+        img = gc.invert_gamma_of_image(image, gamma_params, np.float32)
         for j in range(0, 3):
             graph_num = graph_num + 1
             plt.subplot(int("33" + str(graph_num)))
-            hist = im.histogram(image, j, g[j])
+            hist = im.histogram(img, j, gamma_params)
             plt.plot(hist, color=ct.CHANNEL_COLOUR[j])
             plt.title(ct.CHANNEL[j] + " Channel  \nPicture " + str(i + 1))
 
     plt.tight_layout()
     plt.savefig(ct.EXPOSURE_WRITE_PATH + "/" + file_name)
 
-    if display is True:
-        plt.show()
-
-
-def generate_histogram_mplt(file_name, images, display=ct.DONT_DISPLAY_PLOT):
-    graph_num = 0
-    for idx, image in enumerate(images):
-        channels = im.split_channels(image)
-
-        for i in range(0, 3):
-            channel = channels[i].ravel()
-            graph_num = graph_num + 1
-            plt.subplot(int("33" + str(graph_num)))
-            plt.hist(channel, color=ct.CHANNEL_COLOUR[i], histtype='step')
-            plt.title(ct.CHANNEL[i] + " Channel  \nPicture " + str(idx + 1))
-
-    plt.tight_layout()
-    plt.savefig(ct.EXPOSURE_WRITE_PATH + "/" + file_name)
     if display is True:
         plt.show()

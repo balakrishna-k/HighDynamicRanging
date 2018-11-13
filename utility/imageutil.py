@@ -2,8 +2,6 @@ import cv2 as cv
 import numpy as np
 import os
 
-from matplotlib import pyplot as plt
-
 from utility import constants as ct
 
 
@@ -103,9 +101,7 @@ def get_average_brightness_of_images(images, callback=None):
     return [blue_array, green_array, red_array]
 
 
-def histogram(image, i, g, bin_count=ct.BIN_COUNT):
-    end = np.power(255,g)
-    channel = np.float32(np.power(image, g))
-    return cv.calcHist([channel], [i], None, [ct.BIN_COUNT], [0, end])
-    # ig.hist(image.ravel(), 256, [0, 256])
-
+def histogram(image, channel, g, bin_count=ct.BIN_COUNT):
+    end = np.power(255, g[channel])
+    # image = np.float32(np.power(image, g))
+    return cv.calcHist([image], [channel], None, [bin_count], [0, end])

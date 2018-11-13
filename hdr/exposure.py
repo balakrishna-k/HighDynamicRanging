@@ -25,6 +25,8 @@ def generate_hdr_stack_histogram(file_name, gamma_params, display=ct.DONT_DISPLA
 
     __generate_histogram__(file_name, images, gamma_params, display)
 
+    return images
+
 
 def __generate_histogram__(file_name, images, gamma_params, display=ct.DONT_DISPLAY_PLOT):
     graph_num = 0

@@ -13,16 +13,17 @@ plt.rc('figure', titlesize=ct.BIGGER_SIZE)  # fontsize of the figure title
 
 
 def generate_hdr_stack_histogram(file_name, display=ct.DONT_DISPLAY_PLOT):
+    # Loads the three images from the exposure folder and generates the plots
     image1 = im.read(ct.GAMMA_READ_PATH + "/DSC_0015.JPG")
     image2 = im.read(ct.GAMMA_READ_PATH + "/DSC_0017.JPG")
     image3 = im.read(ct.GAMMA_READ_PATH + "/DSC_0019.JPG")
 
     images = [image1, image2, image3]
 
-    generate_histogram_mplt(file_name, images, display)
+    generate_histogram(file_name, images, display)
 
 
-def generate_histogram_cv2(file_name, images, display=ct.DONT_DISPLAY_PLOT):
+def generate_histogram(file_name, images, display=ct.DONT_DISPLAY_PLOT):
     graph_num = 0
     for i, image in enumerate(images):
         for j in range(0, 3):
@@ -49,7 +50,7 @@ def generate_histogram_mplt(file_name, images, display=ct.DONT_DISPLAY_PLOT):
             graph_num = graph_num + 1
             plt.subplot(int("33" + str(graph_num)))
             plt.hist(channel, color=ct.CHANNEL_COLOUR[i], histtype='step')
-            plt.title("Picture " + str(idx + 1))
+            plt.title(ct.CHANNEL[i] + " Channel  \nPicture " + str(idx + 1))
 
     plt.tight_layout()
     plt.savefig(ct.EXPOSURE_WRITE_PATH + "/" + file_name)

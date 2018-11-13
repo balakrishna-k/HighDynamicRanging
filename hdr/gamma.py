@@ -26,12 +26,25 @@ def invert_gamma_correction(exp_times=ct.EXPOSURE_TIMES, display=ct.DONT_DISPLAY
 
     exp_times = np.log(exp_times)
 
-    g_b, g_g, g_r, fits, orig_brightness = learn_gamma_correction_parameters(exp_times)
+    g_b, g_g, g_r, fits, orig_brightness, images = learn_gamma_correction_parameters(exp_times)
     g = [g_b, g_g, g_r]
 
     # Reversing log that was applied
     orig_brightness = np.exp(orig_brightness)
-    new_brightness = compute_real_brightness_of_image(orig_brightness, g)
+    corrected_images = []
+    for image in images:
+        channels = im.split_channels(image)
+        corrected_channels = [np.power(channels[0], g_b), np.power(channels[1], g_g), np.power(channels[2], g_r)]
+        corrected_images.append(im.combine_channels(corrected_channels))
+
+    [b_brightness, g_brightness, r_brightness] = im.get_average_brightness_of_images(corrected_images)
+    b_brightness = ut.sort_and_reshape_to_1D(b_brightness)
+    g_brightness = ut.sort_and_reshape_to_1D(g_brightness)
+    r_brightness = ut.sort_and_reshape_to_1D(r_brightness)
+
+    new_brightness = [b_brightness, g_brightness, r_brightness]
+
+    # new_brightness = compute_real_brightness_of_image(orig_brightness, g)
 
     plot_brightness_of_channels(1, "ChannelBrightness.png", "Channel Brightness v/s Exposure Time",
                                 np.exp(exp_times), orig_brightness, display=display)
@@ -67,7 +80,7 @@ def learn_gamma_correction_parameters(exp_times):
     g_g = 1 / m_g
     g_r = 1 / m_r
 
-    return g_b, g_g, g_r, [b_fit, g_fit, r_fit], [b_brightness, g_brightness, r_brightness]
+    return g_b, g_g, g_r, [b_fit, g_fit, r_fit], [b_brightness, g_brightness, r_brightness], images
 
 
 def __curve_fit(X, Y):

@@ -1,4 +1,9 @@
 # -----------------------------------------------
+# PLOT DISPLAY CONSTANTS
+DONT_DISPLAY_PLOT = False
+DISPLAY_PLOT = True
+
+# -----------------------------------------------
 # CHANNEL CONSTANTS
 CHANNEL = {0: "Blue", 1: "Green", 2: "Red"}
 CHANNEL_COLOUR = {0: 'b', 1: 'g', 2: 'r'}
@@ -25,3 +30,9 @@ TEST_READ_PATH = 'images/test'
 # IMAGE DISPLAY TIME CONSTANTS
 IMAGE_DISPLAY_TIME = 1000
 WAIT_FOR_KEY_PRESS = 0
+
+# ----------------------------------------------
+# MATPLOTLIB CONSTANTS
+SMALL_SIZE = 8
+MEDIUM_SIZE = 10
+BIGGER_SIZE = 12

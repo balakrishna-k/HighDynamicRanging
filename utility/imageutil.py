@@ -2,6 +2,8 @@ import cv2 as cv
 import numpy as np
 import os
 
+from matplotlib import pyplot as plt
+
 from utility import constants as ct
 
 
@@ -36,7 +38,6 @@ def load_images_from_folder(folder_path, callback=None):
         if img is not None:
             if callback is not None:
                 img = callback(img)
-                print(np.amax(img[0]), np.amax(img[1]), np.amax(img[2]))
             images.append(img)
     return images
 
@@ -102,5 +103,7 @@ def get_average_brightness_of_images(images, callback=None):
     return [blue_array, green_array, red_array]
 
 
-def histogram():
-    return
+def histogram(image, i):
+    return cv.calcHist([image], [i], None, [256], [0, 256])
+    # ig.hist(image.ravel(), 256, [0, 256])
+

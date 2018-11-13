@@ -12,7 +12,7 @@ plt.rc('legend', fontsize=ct.SMALL_SIZE)    # legend fontsize
 plt.rc('figure', titlesize=ct.BIGGER_SIZE)  # fontsize of the figure title
 
 
-def generate_hdr_stack_histogram(file_name, display=ct.DONT_DISPLAY_PLOT):
+def generate_hdr_stack_histogram(file_name, g, display=ct.DONT_DISPLAY_PLOT):
     # Loads the three images from the exposure folder and generates the plots
     image1 = im.read(ct.GAMMA_READ_PATH + "/DSC_0015.JPG")
     image2 = im.read(ct.GAMMA_READ_PATH + "/DSC_0017.JPG")
@@ -20,16 +20,16 @@ def generate_hdr_stack_histogram(file_name, display=ct.DONT_DISPLAY_PLOT):
 
     images = [image1, image2, image3]
 
-    generate_histogram(file_name, images, display)
+    generate_histogram(file_name, images, g, display)
 
 
-def generate_histogram(file_name, images, display=ct.DONT_DISPLAY_PLOT):
+def generate_histogram(file_name, images, g, display=ct.DONT_DISPLAY_PLOT):
     graph_num = 0
     for i, image in enumerate(images):
         for j in range(0, 3):
             graph_num = graph_num + 1
             plt.subplot(int("33" + str(graph_num)))
-            hist = im.histogram(image, j)
+            hist = im.histogram(image, j, g[j])
             plt.plot(hist, color=ct.CHANNEL_COLOUR[j])
             plt.title(ct.CHANNEL[j] + " Channel  \nPicture " + str(i + 1))
 

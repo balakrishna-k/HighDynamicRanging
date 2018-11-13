@@ -36,3 +36,6 @@ WAIT_FOR_KEY_PRESS = 0
 SMALL_SIZE = 8
 MEDIUM_SIZE = 10
 BIGGER_SIZE = 12
+
+#-----------------------------------------------
+BIN_COUNT = 25

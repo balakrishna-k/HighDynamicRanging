@@ -13,9 +13,9 @@ new_gamma_brightness, gamma_brightness, g, fits = gc.invert_gamma_correction(dis
 
 print(g)
 
-new_test_brightness = gc.compute_real_brightness_of_image(gamma_brightness, g)
+# new_test_brightness = gc.compute_real_brightness_of_image(gamma_brightness, g)
 
-xp.generate_hdr_stack_histogram(file_name="Histograms.png", display=DISPLAY)
+xp.generate_hdr_stack_histogram(file_name="Histograms.png", g=g, display=DISPLAY)
 
 image1 = im.read(ct.GAMMA_READ_PATH + "/DSC_0015.JPG")
 img = np.power(image1, 1.62)

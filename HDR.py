@@ -8,13 +8,13 @@ from hdr import composition as cp
 
 from utility import constants as ct
 
-DISPLAY = ct.DONT_DISPLAY_PLOT
+DISPLAY = ct.DISPLAY_PLOT
 
 g = gc.learn_gamma_parameters_and_plot(display=DISPLAY)
 
 print(g)
 
-images = xp.generate_hdr_stack_histogram(file_name="Histograms.png", gamma_params=g, display=DISPLAY)
+images = xp.generate_hdr_stack_histogram(file_name="Histograms.png", file_name_exp="Histograms-exp.png", gamma_params=g, display=DISPLAY)
 
 HDR = cp.average_pixel_hdr(g, images, ct.EXPOSURE_TIMES)
 

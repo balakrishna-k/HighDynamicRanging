@@ -1,4 +1,5 @@
 import numpy as np
+
 from matplotlib import pyplot as plt
 
 from hdr import gamma as gc
@@ -17,6 +18,10 @@ plt.rc('figure', titlesize=ct.BIGGER_SIZE)  # fontsize of the figure title
 
 def generate_hdr_stack_histogram(file_name, gamma_params, display=ct.DONT_DISPLAY_PLOT):
     # Loads the three images from the exposure folder and generates the plots
+    # image1 = im.read(ct.EXPOSURE_READ_PATH + "/a750.jpg")
+    # image2 = im.read(ct.EXPOSURE_READ_PATH + "/a20.jpg")
+    # image3 = im.read(ct.EXPOSURE_READ_PATH + "/a4.jpg")
+
     image1 = im.read(ct.EXPOSURE_READ_PATH + "/Correctly_Exposed.JPG")
     image2 = im.read(ct.EXPOSURE_READ_PATH + "/Partly_Saturated.JPG")
     image3 = im.read(ct.EXPOSURE_READ_PATH + "/Really_Saturated.JPG")

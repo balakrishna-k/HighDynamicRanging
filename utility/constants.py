@@ -13,10 +13,9 @@ CHANNEL_COLOUR = {0: 'b', 1: 'g', 2: 'r'}
 GAMMA_EXPOSURE_TIMES = [1 / 350, 1 / 250, 1 / 180, 1 / 125, 1 / 90, 1 / 60, 1 / 45, 1 / 30]
 
 # -----------------------------------------------
-# GAMMA CORRECTION PARAMETERS
-EXPOSURE_TIMES1 = [1 / 750, 1/ 20, 1 / 4]
-EXPOSURE_TIMES = [1 / 350, 1 / 90, 1 / 30]
-
+# EXPOSURE PARAMETERS
+# EXPOSURE_TIMES = [1 / 350, 1 / 90, 1 / 30]
+EXPOSURE_TIMES = [1/ 1500, 1 / 350, 1 / 125]
 # -----------------------------------------------
 # IMAGE PATHS
 GAMMA_WRITE_PATH = 'images/gamma/out'

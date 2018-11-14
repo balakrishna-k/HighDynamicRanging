@@ -6,10 +6,12 @@ from utility import imageutil as im
 
 
 def best_pixel_hdr(g, images, exposure_times):
+    # This algorithm selects the pixel in the picture with the highest exposure time, if that pixel is not saturated
     return generate_hdr(g, images, exposure_times, get_brightness_value_best)
 
 
 def average_pixel_hdr(g, images, exposure_times):
+    # This algorithm considers the average value of the pixel in pictures where its not saturated
     return generate_hdr(g, images, exposure_times, get_brightness_value_average)
 
 
@@ -43,9 +45,9 @@ def generate_hdr(g, images, exposure_times, callback):
     green_channels, corr_green_channels = __get_channels_for_composition__(image_channels, corr_channels, 1)
     red_channels, corr_red_channels = __get_channels_for_composition__(image_channels, corr_channels, 2)
 
-    new_blue_channel = __compose_channels__(blue_channels, corr_blue_channels, a, g[0], callback)
-    new_green_channel = __compose_channels__(green_channels, corr_green_channels, a, g[1], callback)
-    new_red_channel = __compose_channels__(red_channels, corr_red_channels, a, g[2], callback)
+    new_blue_channel = __compose_channels__(blue_channels, corr_blue_channels, a, callback)
+    new_green_channel = __compose_channels__(green_channels, corr_green_channels, a, callback)
+    new_red_channel = __compose_channels__(red_channels, corr_red_channels, a, callback)
 
     new_blue_channel = new_blue_channel.reshape(shp)
     new_green_channel = new_green_channel.reshape(shp)
@@ -60,7 +62,7 @@ def generate_hdr(g, images, exposure_times, callback):
     return HDR_image
 
 
-def __compose_channels__(channels_pixels, corr_values, a, g, callback):
+def __compose_channels__(channels_pixels, corr_values, a, callback):
     # For a particular channel,
     # Returns a float64 image of channel
     new_channel_brightness = []
@@ -73,29 +75,27 @@ def __compose_channels__(channels_pixels, corr_values, a, g, callback):
 
         brightness = [corr_values[0][i], corr_values[1][i], corr_values[2][i]]
 
-        new_channel_brightness.append(callback(pixel1, pixel2, pixel3, brightness, a, g))
+        new_channel_brightness.append(callback(pixel1, pixel2, pixel3, brightness, a))
 
     return np.array(new_channel_brightness)
 
 
-def get_brightness_value_best(pixel_1, pixel_2, pixel_3, corr_pixel_values, a, g):
-
-    if pixel_3 <= 255 / a[2]:
+def get_brightness_value_best(pixel_1, pixel_2, pixel_3, corr_pixel_values, a):
+    if pixel_3 < 255 / a[2]:
         return corr_pixel_values[2] / a[2]
-    elif pixel_2 <= 255 / a[1]:
+    elif pixel_2 < 255 / a[1]:
         return corr_pixel_values[1] / a[1]
     else:
         return corr_pixel_values[0] / a[0]
 
 
-def get_brightness_value_average(pixel_1, pixel_2, pixel_3, corr_pixel_values, a, g):
-    if pixel_3 <= 255 / a[2]:
+def get_brightness_value_average(pixel_1, pixel_2, pixel_3, corr_pixel_values, a):
+    if pixel_3 < 255 / a[2]:
         return (corr_pixel_values[2] / a[2] + corr_pixel_values[1] / a[1] + corr_pixel_values[0] / a[0]) / 3
-    elif pixel_2 <= 255 / a[1]:
+    elif pixel_2 < 255 / a[1]:
         return (corr_pixel_values[1] / a[1] + corr_pixel_values[0] / a[0]) / 2
     else:
         return corr_pixel_values[0] / a[0]
-
 
 
 def __get_channels_for_composition__(image_channels, corr_channels, channel):
@@ -116,12 +116,9 @@ def __preprocess__(image, g):
 def __ravel__(channels):
     # For an image's channels, converts them into 1D arrays
     new_channels = []
-    # print(len(channels[2]))
 
     for i in range(0, 3):
         # print(i)
         new_channels.append(channels[i].ravel())
 
     return np.array(new_channels)
-
-

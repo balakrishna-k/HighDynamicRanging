@@ -102,5 +102,5 @@ def get_average_brightness_of_images(images, callback=None):
 
 
 def histogram(image, channel, g, bin_count=ct.BIN_COUNT):
-    end = np.power(256, g[channel])
+    end = np.power(255, g[channel])
     return cv.calcHist([image], [channel], None, [bin_count], [0, end])

@@ -31,7 +31,6 @@ def generate_hdr_stack_histogram(file_name, file_name_exp, gamma_params, display
 
     exp_times = [exp1, exp2/exp1, exp3/exp1]
 
-
     __generate_histogram__(file_name, images, gamma_params, display)
     __generate_exp_histogram__(file_name_exp, images, gamma_params, exp_times, display)
 
@@ -40,7 +39,7 @@ def generate_hdr_stack_histogram(file_name, file_name_exp, gamma_params, display
 
 def __generate_histogram__(file_name, images, gamma_params, display=ct.DONT_DISPLAY_PLOT):
     graph_num = 0
-    fig = plt.figure(0)
+    plt.figure(0)
     for i, image in enumerate(images):
         img = gc.invert_gamma_of_image(image, gamma_params, np.float32)
         for j in range(0, 3):
@@ -50,8 +49,9 @@ def __generate_histogram__(file_name, images, gamma_params, display=ct.DONT_DISP
             plt.plot(hist, color=ct.CHANNEL_COLOUR[j])
             plt.title(ct.CHANNEL[j] + " Channel  \nPicture " + str(i + 1))
 
+    plt.suptitle("HDR Stack Histogram")
     plt.tight_layout()
-    fig.suptitle("HDR Stack Histogram")
+    plt.subplots_adjust(top=0.8)
     plt.savefig(ct.EXPOSURE_WRITE_PATH + "/" + file_name)
 
     if display is True:
@@ -64,7 +64,7 @@ def __generate_exp_histogram__(file_name, images, gamma_params, exp_times, displ
 
     img = [img1, img2]
     graph_num = 0
-    fig = plt.figure(1)
+    plt.figure(1)
     for i, image in enumerate(img):
         for j in range(0,3):
             graph_num = graph_num + 1
@@ -73,8 +73,9 @@ def __generate_exp_histogram__(file_name, images, gamma_params, exp_times, displ
             plt.plot(hist, color=ct.CHANNEL_COLOUR[j])
             plt.title(ct.CHANNEL[j] + " Channel \nPicture " + str(i + 1))
 
+    plt.suptitle("Histograms for B'(a1*T)/a1 and B'(a2*T)/a2")
     plt.tight_layout()
-    fig.suptitle("Histograms for B'(a1*T)/a1 and B'(a2*T)/a2")
+    plt.subplots_adjust(top=0.8)
     plt.savefig(ct.EXPOSURE_WRITE_PATH + "/" + file_name)
 
     if display is True:

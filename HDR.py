@@ -8,7 +8,7 @@ from hdr import composition as cp
 
 from utility import constants as ct
 
-DISPLAY = ct.DONT_DISPLAY_PLOT
+DISPLAY = ct.DISPLAY_PLOT
 composite_images = []
 
 # ------------------------------------------------------------------
